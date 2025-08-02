@@ -35,6 +35,13 @@ export default function WorkingWithArrays(app) {
     res.json(todos);
   };
 
+  const postNewTodo = (req, res) => {
+    const newTodo = { ...req.body, id: new Date().getTime() }; // The server adds the id
+    todos.push(newTodo);
+    res.json(newTodo);
+  };
+  // Why do we let the server add the id? See the note.
+
   const getTodoById = (req, res) => {
     const { id } = req.params;
     const todo = todos.find((t) => t.id === parseInt(id));
@@ -89,6 +96,7 @@ export default function WorkingWithArrays(app) {
   app.get('/lab5/todos/:id/description/:description', updateTodoDescription);
   // Express routes are matched in the order they’re defined—from top to bottom. The first matching route “wins,” and the rest are ignored. As a rule of thumb, more specific routes should be placed before more general or catch-all routes; otherwise, some requests may never reach the correct handler.
   app.get('/lab5/todos/create', createNewTodo); // make sure to implement this BEFORE the /lab5/todos/:id
+  app.post('/lab5/todos', postNewTodo);
   app.get('/lab5/todos', getTodos);
   app.get('/lab5/todos/:id', getTodoById);
 }

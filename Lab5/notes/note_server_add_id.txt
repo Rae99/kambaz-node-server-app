@@ -1,0 +1,73 @@
+That’s a really good question — and it comes down to data trust and responsibility.
+
+⸻
+
+Why add the id on the server instead of in the client?
+
+1. The server is the source of truth
+	•	In a real app, clients are not trusted to decide important fields like IDs.
+	•	If the client created the ID, it could:
+	•	Accidentally send duplicates
+	•	Send an ID that overwrites another user’s data
+	•	Send something malicious
+
+By letting the server generate IDs, you ensure:
+	•	IDs are always unique
+	•	IDs are in the format the server expects
+	•	Clients can’t fake or mess with them
+
+⸻
+
+2. Multiple clients problem
+
+Imagine 3 users adding todos at the same time:
+	•	If each client made up its own ID (like Date.now()), collisions might happen, especially if two requests arrive in the same millisecond.
+	•	The server can coordinate ID assignment so there are no conflicts.
+
+⸻
+
+3. Future flexibility
+
+If later you move from an in‑memory todos array to:
+	•	A database (e.g., MongoDB, PostgreSQL),
+the database will generate IDs automatically.
+	•	The client doesn’t have to change — it still just sends { title, completed }.
+
+⸻
+
+4. Cleaner client code
+
+The client’s job is to ask:
+
+{
+  "title": "Buy milk",
+  "completed": false
+}
+
+The server’s job is to decide:
+
+{
+  "title": "Buy milk",
+  "completed": false,
+  "id": 172263899,
+  "createdAt": "2025-08-02T14:58:00Z"
+}
+
+
+⸻
+
+5. Example
+
+If you generated ID in the client:
+
+const todo = { id: Date.now(), title: 'New Posted Todo', completed: false };
+
+and sent it to the server —
+the server might still overwrite it to keep data consistent.
+
+⸻
+
+💡 In short:
+
+IDs are generated on the server so they’re unique, reliable, and safe — and so the server stays in control of the data.
+
