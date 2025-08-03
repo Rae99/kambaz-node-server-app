@@ -3,7 +3,7 @@ import { hello } from './Hello.js';
 import Lab5 from './Lab5/index.js';
 import cors from 'cors';
 import session from 'express-session';
-import UserRoutes from './Database/Kambaz/Users/routes.js';
+import UserRoutes from './Kambaz/Users/routes.js';
 const app = express();
 UserRoutes(app);
 app.use(

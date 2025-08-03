@@ -1,4 +1,4 @@
-import db from "../../index.js";
+import db from "../Database/index.js";
 import { v4 as uuidv4 } from "uuid";
 let { users } = db;
 export const createUser = (user) => {
