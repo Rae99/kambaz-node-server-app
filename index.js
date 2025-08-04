@@ -5,7 +5,7 @@ import cors from 'cors';
 import session from 'express-session';
 import UserRoutes from './Kambaz/routes.js';
 const app = express();
-UserRoutes(app);
+
 app.use(
   cors({
     credentials: true,
@@ -25,9 +25,20 @@ if (process.env.SERVER_ENV !== 'development') {
     domain: process.env.SERVER_URL,
   };
 }
-app.use(session(sessionOptions));
-app.use(express.json());
 
+// The following two lines must be before the routes are defined
+app.use(session(sessionOptions)); // This is a middleware that creates a session for the user
+app.use(express.json()); // This is a middleware that parses the request body and makes it available in req.body
+
+
+UserRoutes(app);
 hello(app);
 Lab5(app);
 app.listen(process.env.PORT || 4000);
+
+// JS object (client) 
+// → JSON string 
+// → HTTP bytes 
+// → (server) 
+// → express.json() 
+// → JS object (req.body)

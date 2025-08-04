@@ -1,0 +1,1317 @@
+diff --git a/Kambaz/Database/Kambaz/Users/dao.js b/Kambaz/Database/Kambaz/Users/dao.js
+new file mode 100644
+index 0000000..4def64c
+--- /dev/null
++++ b/Kambaz/Database/Kambaz/Users/dao.js
+@@ -0,0 +1,18 @@
++import db from "../../index.js";
++import { v4 as uuidv4 } from "uuid";
++let { users } = db;
++export const createUser = (user) => {
++ const newUser = { ...user, _id: uuidv4() };
++ users = [...users, newUser];
++ return newUser;
++};
++
++// export const createUser = (user) => (users = [...users, { ...user, _id: uuidv4() }]);
++
++export const findAllUsers = () => users;
++export const findUserById = (userId) => users.find((user) => user._id === userId);
++export const findUserByUsername = (username) => users.find((user) => user.username === username);
++export const findUserByCredentials = (username, password) =>
++  users.find( (user) => user.username === username && user.password === password );
++export const updateUser = (userId, user) => (users = users.map((u) => (u._id === userId ? user : u)));
++export const deleteUser = (userId) => (users = users.filter((u) => u._id !== userId));
+\ No newline at end of file
+diff --git a/Kambaz/Database/Kambaz/Users/routes.js b/Kambaz/Database/Kambaz/Users/routes.js
+new file mode 100644
+index 0000000..4bfe435
+--- /dev/null
++++ b/Kambaz/Database/Kambaz/Users/routes.js
+@@ -0,0 +1,34 @@
++import * as dao from './dao.js';
++let currentUser = null;
++export default function UserRoutes(app) {
++  const createUser = (req, res) => {};
++  const deleteUser = (req, res) => {};
++  const findAllUsers = (req, res) => {};
++  const findUserById = (req, res) => {};
++  const updateUser = (req, res) => {};
++  const signup = (req, res) => {
++    const user = dao.findUserByUsername(req.body.username);
++    if (user) {
++      res.status(400).json({ message: 'Username already in use' });
++      return;
++    }
++    currentUser = dao.createUser(req.body);
++    res.json(currentUser);
++  };
++  const signin = (req, res) => {
++    const { username, password } = req.body;
++    currentUser = dao.findUserByCredentials(username, password);
++    res.json(currentUser);
++  };
++  const signout = (req, res) => {};
++  const profile = (req, res) => {};
++  app.post('/api/users', createUser);
++  app.get('/api/users', findAllUsers);
++  app.get('/api/users/:userId', findUserById);
++  app.put('/api/users/:userId', updateUser);
++  app.delete('/api/users/:userId', deleteUser);
++  app.post('/api/users/signup', signup);
++  app.post('/api/users/signin', signin);
++  app.post('/api/users/signout', signout);
++  app.post('/api/users/profile', profile);
++}
+diff --git a/Kambaz/Database/assignments.js b/Kambaz/Database/assignments.js
+new file mode 100644
+index 0000000..177b639
+--- /dev/null
++++ b/Kambaz/Database/assignments.js
+@@ -0,0 +1,222 @@
++export default [
++  {
++    _id: 'A101',
++    title: 'Propulsion Assignment',
++    course: 'RS101',
++    description:
++      'Analyze rocket propulsion systems and submit a technical report.',
++    points: 100,
++    dueDate: '2023-02-15',
++    availableDate: '2023-01-20',
++  },
++  {
++    _id: 'A102',
++    title: 'Combustion Analysis',
++    course: 'RS101',
++    description: 'Perform combustion calculations for various propellants.',
++    points: 80,
++    dueDate: '2023-03-01',
++    availableDate: '2023-02-10',
++  },
++  {
++    _id: 'A103',
++    title: 'Nozzle Design Project',
++    course: 'RS101',
++    description: 'Design and simulate a rocket nozzle for optimal performance.',
++    points: 120,
++    dueDate: '2023-03-20',
++    availableDate: '2023-02-25',
++  },
++  {
++    _id: 'A201',
++    title: 'Aerodynamics Quiz',
++    course: 'RS102',
++    description: 'Quiz on fundamental aerodynamic principles.',
++    points: 50,
++    dueDate: '2023-02-10',
++    availableDate: '2023-01-25',
++  },
++  {
++    _id: 'A202',
++    title: 'Flow Analysis',
++    course: 'RS102',
++    description: 'Analyze airflow over various wing profiles.',
++    points: 90,
++    dueDate: '2023-03-05',
++    availableDate: '2023-02-15',
++  },
++  {
++    _id: 'A203',
++    title: 'Heating Analysis',
++    course: 'RS102',
++    description: 'Calculate heating rates for re-entry vehicles.',
++    points: 100,
++    dueDate: '2023-03-25',
++    availableDate: '2023-03-01',
++  },
++  {
++    _id: 'A301',
++    title: 'Structural Design Task',
++    course: 'RS103',
++    description: 'Design a lightweight structure for a satellite.',
++    points: 110,
++    dueDate: '2023-02-28',
++    availableDate: '2023-02-05',
++  },
++  {
++    _id: 'A302',
++    title: 'Orbital Calculations',
++    course: 'RS103',
++    description: 'Perform calculations for satellite orbits and transfers.',
++    points: 95,
++    dueDate: '2023-03-18',
++    availableDate: '2023-02-28',
++  },
++  {
++    _id: 'A303',
++    title: 'Systems Engineering Exam',
++    course: 'RS103',
++    description: 'Comprehensive exam on systems engineering concepts.',
++    points: 150,
++    dueDate: '2023-04-01',
++    availableDate: '2023-03-15',
++  },
++  {
++    _id: 'A401',
++    title: 'Mission Planning Assignment',
++    course: 'RS104',
++    description: 'Plan a mission to Mars including trajectory and resources.',
++    points: 130,
++    dueDate: '2023-03-10',
++    availableDate: '2023-02-20',
++  },
++  {
++    _id: 'A402',
++    title: 'Satellite Communication Project',
++    course: 'RS104',
++    description:
++      'Design a communication system for a low Earth orbit satellite.',
++    points: 140,
++    dueDate: '2023-03-30',
++    availableDate: '2023-03-05',
++  },
++  {
++    _id: 'A403',
++    title: 'Spacecraft Control Systems',
++    course: 'RS104',
++    description:
++      'Develop a control system for spacecraft attitude stabilization.',
++    points: 120,
++    dueDate: '2023-04-15',
++    availableDate: '2023-03-20',
++  },
++  {
++    _id: 'A501',
++    title: 'Astrodynamics Quiz',
++    course: 'RS105',
++    description: 'Quiz on astrodynamics principles and applications.',
++    points: 60,
++    dueDate: '2023-02-20',
++    availableDate: '2023-01-30',
++  },
++  {
++    _id: 'A502',
++    title: 'Thermal Analysis Assignment',
++    course: 'RS105',
++    description: 'Analyze thermal environments for spacecraft.',
++    points: 85,
++    dueDate: '2023-03-15',
++    availableDate: '2023-02-25',
++  },
++  {
++    _id: 'A503',
++    title: 'Launch Vehicle Design Project',
++    course: 'RS105',
++    description: 'Design a launch vehicle for a specific payload.',
++    points: 150,
++    dueDate: '2023-04-05',
++    availableDate: '2023-03-10',
++  },
++  {
++    _id: 'A601',
++    title: 'Space Mission Analysis',
++    course: 'RS106',
++    description: 'Analyze a historical space mission and present findings.',
++    points: 100,
++    dueDate: '2023-03-01',
++    availableDate: '2023-02-10',
++  },
++  {
++    _id: 'A602',
++    title: 'Propulsion System Design',
++    course: 'RS106',
++    description: 'Design a propulsion system for a deep space probe.',
++    points: 120,
++    dueDate: '2023-03-20',
++    availableDate: '2023-02-25',
++  },
++  {
++    _id: 'A603',
++    title: 'Satellite Systems Integration',
++    course: 'RS106',
++    description: 'Integrate various systems in a satellite design.',
++    points: 130,
++    dueDate: '2023-04-10',
++    availableDate: '2023-03-15',
++  },
++  {
++    _id: 'A701',
++    title: 'Spacecraft Navigation Assignment',
++    course: 'RS107',
++    description: 'Develop a navigation plan for a lunar mission.',
++    points: 110,
++    dueDate: '2023-03-05',
++    availableDate: '2023-02-15',
++  },
++  {
++    _id: 'A702',
++    title: 'Orbital Mechanics Quiz',
++    course: 'RS107',
++    description: 'Quiz on orbital mechanics and satellite dynamics.',
++    points: 70,
++    dueDate: '2023-02-25',
++    availableDate: '2023-02-01',
++  },
++  {
++    _id: 'A703',
++    title: 'Space Environment Simulation',
++    course: 'RS107',
++    description: 'Simulate the space environment for a spacecraft design.',
++    points: 90,
++    dueDate: '2023-03-30',
++    availableDate: '2023-03-01',
++  },
++  {
++    _id: 'A801',
++    title: 'Rocket Propulsion Theory',
++    course: 'RS108',
++    description:
++      'Study the principles of rocket propulsion and submit a report.',
++    points: 100,
++    dueDate: '2023-03-10',
++    availableDate: '2023-02-20',
++  },
++  {
++    _id: 'A802',
++    title: 'Spacecraft Design Project',
++    course: 'RS108',
++    description: 'Design a spacecraft for a specific mission profile.',
++    points: 150,
++    dueDate: '2023-04-01',
++    availableDate: '2023-03-05',
++  },
++  {
++    _id: 'A803',
++    title: 'Mission Control Systems',
++    course: 'RS108',
++    description: 'Develop systems for mission control operations.',
++    points: 120,
++    dueDate: '2023-04-20',
++    availableDate: '2023-03-25',
++  },
++];
+diff --git a/Kambaz/Database/courses.js b/Kambaz/Database/courses.js
+new file mode 100644
+index 0000000..dfe2797
+--- /dev/null
++++ b/Kambaz/Database/courses.js
+@@ -0,0 +1,92 @@
++export default [
++  {
++    _id: 'RS101',
++    name: 'Rocket Propulsion',
++    number: 'RS4550',
++    startDate: '2023-01-10',
++    endDate: '2023-05-15',
++    department: 'D123',
++    credits: 4,
++    description:
++      'This course provides an in-depth study of the fundamentals of rocket propulsion, covering topics such as propulsion theory, engine types, fuel chemistry, and the practical applications of rocket technology. Designed for students with a strong background in physics and engineering, the course includes both theoretical instruction and hands-on laboratory work',
++  },
++  {
++    _id: 'RS102',
++    name: 'Aerodynamics',
++    number: 'RS4560',
++    startDate: '2023-01-10',
++    endDate: '2023-05-15',
++    department: 'D123',
++    credits: 3,
++    description:
++      'This course offers a comprehensive exploration of aerodynamics, focusing on the principles and applications of airflow and its effects on flying objects. Topics include fluid dynamics, airfoil design, lift and drag forces, and the aerodynamic considerations in aircraft design. The course blends theoretical learning with practical applications, suitable for students pursuing a career in aeronautics or astronautics engineering.',
++  },
++  {
++    _id: 'RS103',
++    name: 'Spacecraft Design',
++    number: 'RS4570',
++    startDate: '2023-01-10',
++    endDate: '2023-05-15',
++    department: 'D123',
++    credits: 4,
++    description:
++      'This course delves into the principles and practices of spacecraft design, offering students a detailed understanding of the engineering and technology behind spacecraft systems. Key topics include spacecraft structure, propulsion, power systems, thermal control, and payload integration. Emphasizing both theoretical concepts and practical skills, the course prepares students for careers in the space industry, with a focus on innovative design and problem-solving in the context of current and future space missions',
++  },
++  {
++    _id: 'RS104',
++    name: 'Organic Chemistry',
++    number: 'CH1230',
++    startDate: '2023-01-10',
++    endDate: '2023-05-15',
++    department: 'D134',
++    credits: 3,
++    description:
++      'Organic Chemistry is an in-depth course that explores the structure, properties, composition, and reactions of organic compounds and materials. The course covers various topics including hydrocarbons, functional groups, stereochemistry, and organic synthesis techniques. Students will learn about the mechanisms of organic reactions, spectroscopic methods for structure determination, and the role of organic chemistry in biological systems. Emphasis is placed on problem-solving and laboratory skills, preparing students for advanced studies in chemistry, medicine, and related fields.',
++  },
++  {
++    _id: 'RS105',
++    name: 'Inorganic Chemistry',
++    number: 'CH1240',
++    startDate: '2023-01-10',
++    endDate: '2023-05-15',
++    department: 'D134',
++    credits: 3,
++    description:
++      'Inorganic Chemistry focuses on the properties, structures, and behaviors of inorganic and organometallic compounds. This course covers a range of topics including coordination chemistry, metal complexes, bonding theories, symmetry, and crystal field theory. Students will also explore the role of inorganic chemistry in real-world applications such as catalysis, materials science, and bioinorganic processes. Laboratory work emphasizes synthesis and analysis of inorganic compounds, fostering a deeper understanding of theoretical concepts.',
++  },
++  {
++    _id: 'RS106',
++    name: 'Physical Chemistry',
++    number: 'CH1250',
++    startDate: '2023-01-10',
++    endDate: '2023-05-15',
++    department: 'D134',
++    credits: 3,
++    description:
++      'Physical Chemistry merges the principles of physics and chemistry to understand the physical properties of molecules, the forces that act upon them, and the chemical reactions they undergo. Key topics include thermodynamics, kinetics, quantum mechanics, and spectroscopy. The course provides a comprehensive understanding of molecular behavior, reaction dynamics, and the application of mathematical methods in solving chemical problems. Labs focus on experimental techniques and data analysis, equipping students with skills necessary for research and advanced study in chemistry and related fields.',
++  },
++  {
++    _id: 'RS107',
++    name: 'Ancient Languages and Scripts of Middle-earth',
++    number: 'ME101',
++    startDate: '2023-01-10',
++    endDate: '2023-05-15',
++    department: 'Languages',
++    credits: 3,
++    description:
++      "This course offers an exploration of the ancient languages and scripts found throughout Middle-earth, including Elvish (Sindarin and Quenya), Dwarvish (Khuzdul), and the Black Speech of Mordor. Students will learn the historical and cultural contexts of these languages, their linguistic structures, and their usage in various inscriptions and texts. Emphasis is on understanding the philological aspects and the role of language in shaping Middle-earth's history and lore.",
++    author: '654f9ec2ea7ead465908d1e3',
++  },
++  {
++    _id: 'RS108',
++    name: 'Wizards, Elves, and Men: Inter-species Diplomacy in Middle-earth',
++    number: 'ME102',
++    startDate: '2023-01-10',
++    endDate: '2023-05-15',
++    department: 'Political Studies',
++    credits: 4,
++    description:
++      "This course explores the complex relationships and diplomatic interactions among the different races of Middle-earth: Elves, Men, Dwarves, and Wizards. Topics include the study of historical alliances, conflicts, and the role of leadership and wisdom in maintaining peace. Students will engage in discussions and case studies on key events in Middle-earth's history, such as the Council of Elrond and the War of the Ring, to understand the principles of diplomacy and conflict resolution in a multi-species context.",
++    author: '654f9ec2ea7ead465908d1e3',
++  },
++];
+diff --git a/Kambaz/Database/enrollments.js b/Kambaz/Database/enrollments.js
+new file mode 100644
+index 0000000..a560d6c
+--- /dev/null
++++ b/Kambaz/Database/enrollments.js
+@@ -0,0 +1,33 @@
++export default [
++  { _id: '1', user: '123', course: 'RS101' },
++  { _id: '2', user: '234', course: 'RS101' },
++  { _id: '3', user: '345', course: 'RS101' },
++  { _id: '4', user: '456', course: 'RS101' },
++  { _id: '5', user: '567', course: 'RS101' },
++  { _id: '6', user: '234', course: 'RS102' },
++  { _id: '7', user: '789', course: 'RS102' },
++  { _id: '8', user: '890', course: 'RS102' },
++  { _id: '9', user: '123', course: 'RS102' },
++  { _id: '10', user: '345', course: 'RS103' },
++  { _id: '11', user: '456', course: 'RS103' },
++  { _id: '12', user: '567', course: 'RS103' },
++  { _id: '13', user: '678', course: 'RS103' },
++  { _id: '14', user: '789', course: 'RS103' },
++  { _id: '15', user: '890', course: 'RS104' },
++  { _id: '16', user: '123', course: 'RS104' },
++  { _id: '17', user: '234', course: 'RS104' },
++  { _id: '18', user: '345', course: 'RS105' },
++  { _id: '19', user: '456', course: 'RS105' },
++  { _id: '20', user: '567', course: 'RS105' },
++  { _id: '21', user: '678', course: 'RS106' },
++  { _id: '22', user: '789', course: 'RS106' },
++  { _id: '23', user: '890', course: 'RS106' },
++  { _id: '24', user: '123', course: 'RS107' },
++  { _id: '25', user: '234', course: 'RS107' },
++  { _id: '26', user: '345', course: 'RS107' },
++  { _id: '27', user: '456', course: 'RS107' },
++  { _id: '28', user: '567', course: 'RS107' },
++  { _id: '29', user: '678', course: 'RS108' },
++  { _id: '30', user: '789', course: 'RS108' },
++  { _id: '31', user: '890', course: 'RS108' },
++];
+diff --git a/Kambaz/Database/grades.js b/Kambaz/Database/grades.js
+new file mode 100644
+index 0000000..e69de29
+diff --git a/Kambaz/Database/index.js b/Kambaz/Database/index.js
+new file mode 100644
+index 0000000..dcf3c3e
+--- /dev/null
++++ b/Kambaz/Database/index.js
+@@ -0,0 +1,7 @@
++import courses from "./courses.js";
++import modules from "./modules.js";
++import assignments from "./assignments.js";
++import users from "./users.js";
++import grades from "./grades.js";
++import enrollments from "./enrollments.js";
++export default { courses, modules, assignments, users, grades, enrollments };
+\ No newline at end of file
+diff --git a/Kambaz/Database/modules.js b/Kambaz/Database/modules.js
+new file mode 100644
+index 0000000..44a82e5
+--- /dev/null
++++ b/Kambaz/Database/modules.js
+@@ -0,0 +1,668 @@
++export default [
++  {
++    _id: 'M101',
++    name: 'Introduction to Rocket Propulsion',
++    description: 'Basic principles of rocket propulsion and rocket engines.',
++    course: 'RS101',
++    lessons: [
++      {
++        _id: 'L101',
++        name: 'History of Rocketry',
++        description: 'A brief history of rocketry and space exploration.',
++        module: 'M101',
++      },
++      {
++        _id: 'L102',
++        name: 'Rocket Propulsion Fundamentals',
++        description: 'Basic principles of rocket propulsion.',
++        module: 'M101',
++      },
++      {
++        _id: 'L103',
++        name: 'Rocket Engine Types',
++        description: 'Overview of different types of rocket engines.',
++        module: 'M101',
++      },
++    ],
++  },
++  {
++    _id: 'M102',
++    name: 'Fuel and Combustion',
++    description:
++      'Understanding rocket fuel, combustion processes, and efficiency.',
++    course: 'RS101',
++    lessons: [
++      {
++        _id: 'L201',
++        name: 'Rocket Fuel',
++        description: 'Overview of different types of rocket fuels.',
++        module: 'M102',
++      },
++      {
++        _id: 'L202',
++        name: 'Combustion Processes',
++        description: 'Understanding combustion processes and efficiency.',
++        module: 'M102',
++      },
++      {
++        _id: 'L203',
++        name: 'Combustion Instability',
++        description: 'Understanding combustion instability and mitigation.',
++        module: 'M102',
++      },
++    ],
++  },
++  {
++    _id: 'M103',
++    name: 'Nozzle Design',
++    description:
++      'Principles of rocket nozzle design and performance optimization.',
++    course: 'RS101',
++    lessons: [
++      {
++        _id: 'L301',
++        name: 'Nozzle Design',
++        description: 'Overview of different types of rocket nozzles.',
++        module: 'M103',
++      },
++      {
++        _id: 'L302',
++        name: 'Nozzle Performance',
++        description: 'Understanding nozzle performance and efficiency.',
++        module: 'M103',
++      },
++      {
++        _id: 'L303',
++        name: 'Nozzle Optimization',
++        description: 'Optimizing nozzle design for specific applications.',
++        module: 'M103',
++      },
++    ],
++  },
++  {
++    _id: 'M201',
++    name: 'Fundamentals of Aerodynamics',
++    description: 'Basic aerodynamic concepts and fluid dynamics principles.',
++    course: 'RS102',
++    lessons: [
++      {
++        _id: 'L401',
++        name: 'Aerodynamic Forces',
++        description: 'Understanding lift, drag, and thrust in aerodynamics.',
++        module: 'M201',
++      },
++      {
++        _id: 'L402',
++        name: 'Airflow Dynamics',
++        description:
++          'Principles of airflow dynamics and its effects on flight.',
++        module: 'M201',
++      },
++      {
++        _id: 'L403',
++        name: 'Airfoil Design',
++        description: 'Designing airfoils for optimal aerodynamic performance.',
++        module: 'M201',
++      },
++    ],
++  },
++  {
++    _id: 'M202',
++    name: 'Subsonic and Supersonic Flow',
++    description: 'Understanding subsonic and supersonic aerodynamic behaviors.',
++    course: 'RS102',
++    lessons: [
++      {
++        _id: 'L501',
++        name: 'Subsonic Flow',
++        description: 'Characteristics of subsonic flow and its applications.',
++        module: 'M202',
++      },
++      {
++        _id: 'L502',
++        name: 'Supersonic Flow',
++        description: 'Understanding supersonic flow and shock waves.',
++        module: 'M202',
++      },
++      {
++        _id: 'L503',
++        name: 'Transonic Flow',
++        description:
++          'Exploring transonic flow and its implications in aerodynamics.',
++        module: 'M202',
++      },
++    ],
++  },
++  {
++    _id: 'M203',
++    name: 'Aerodynamic Heating',
++    description: 'Study of aerodynamic heating and thermal protection systems.',
++    course: 'RS102',
++    lessons: [
++      {
++        _id: 'L601',
++        name: 'Aerodynamic Heating Basics',
++        description: 'Understanding the basics of aerodynamic heating.',
++        module: 'M203',
++      },
++      {
++        _id: 'L602',
++        name: 'Thermal Protection Systems',
++        description: 'Designing thermal protection systems for spacecraft.',
++        module: 'M203',
++      },
++      {
++        _id: 'L603',
++        name: 'Heat Transfer in Aerodynamics',
++        description: 'Exploring heat transfer mechanisms in aerodynamics.',
++        module: 'M203',
++      },
++    ],
++  },
++  {
++    _id: 'M301',
++    name: 'Spacecraft Structural Design',
++    description:
++      'Fundamentals of designing spacecraft structures and materials selection.',
++    course: 'RS103',
++    lessons: [
++      {
++        _id: 'L701',
++        name: 'Structural Materials',
++        description: 'Overview of materials used in spacecraft structures.',
++        module: 'M301',
++      },
++      {
++        _id: 'L702',
++        name: 'Load Analysis',
++        description:
++          'Understanding load analysis and its importance in design.',
++        module: 'M301',
++      },
++      {
++        _id: 'L703',
++        name: 'Structural Testing',
++        description: 'Methods for testing spacecraft structures.',
++        module: 'M301',
++      },
++    ],
++  },
++  {
++    _id: 'M302',
++    name: 'Orbital Mechanics',
++    description: 'Understanding orbital dynamics and mission planning.',
++    course: 'RS103',
++    lessons: [
++      {
++        _id: 'L801',
++        name: 'Orbital Dynamics',
++        description: 'Principles of orbital mechanics and dynamics.',
++        module: 'M302',
++      },
++      {
++        _id: 'L802',
++        name: 'Mission Planning',
++        description: 'Planning space missions using orbital mechanics.',
++        module: 'M302',
++      },
++      {
++        _id: 'L803',
++        name: 'Satellite Orbits',
++        description: 'Understanding different types of satellite orbits.',
++        module: 'M302',
++      },
++    ],
++  },
++  {
++    _id: 'M303',
++    name: 'Spacecraft Systems Engineering',
++    description: 'Overview of spacecraft systems and subsystems engineering.',
++    course: 'RS103',
++    lessons: [
++      {
++        _id: 'L901',
++        name: 'Spacecraft Systems',
++        description: 'Understanding the various systems in a spacecraft.',
++        module: 'M303',
++      },
++      {
++        _id: 'L902',
++        name: 'Subsystem Integration',
++        description:
++          'Integrating subsystems for optimal spacecraft performance.',
++        module: 'M303',
++      },
++      {
++        _id: 'L903',
++        name: 'Systems Engineering Processes',
++        description:
++          'Exploring systems engineering processes in spacecraft design.',
++        module: 'M303',
++      },
++    ],
++  },
++
++  {
++    _id: 'M401',
++    name: 'Organic Chemistry Fundamentals',
++    description: 'Introduction to organic chemistry concepts and reactions.',
++    course: 'RS104',
++    lessons: [
++      {
++        _id: 'L1001',
++        name: 'Organic Compounds',
++        description:
++          'Understanding the structure and properties of organic compounds.',
++        module: 'M401',
++      },
++      {
++        _id: 'L1002',
++        name: 'Functional Groups',
++        description: 'Exploring functional groups and their reactivity.',
++        module: 'M401',
++      },
++      {
++        _id: 'L1003',
++        name: 'Organic Reactions',
++        description: 'Overview of common organic reactions and mechanisms.',
++        module: 'M401',
++      },
++    ],
++  },
++  {
++    _id: 'M402',
++    name: 'Inorganic Chemistry Principles',
++    description:
++      'Fundamentals of inorganic chemistry and coordination compounds.',
++    course: 'RS105',
++    lessons: [
++      {
++        _id: 'L1101',
++        name: 'Inorganic Compounds',
++        description: 'Understanding the properties of inorganic compounds.',
++        module: 'M402',
++      },
++      {
++        _id: 'L1102',
++        name: 'Coordination Chemistry',
++        description: 'Exploring coordination compounds and their applications.',
++        module: 'M402',
++      },
++      {
++        _id: 'L1103',
++        name: 'Bonding Theories',
++        description: 'Understanding bonding theories in inorganic chemistry.',
++        module: 'M402',
++      },
++    ],
++  },
++  {
++    _id: 'M403',
++    name: 'Physical Chemistry Concepts',
++    description:
++      'Introduction to physical chemistry and its applications in chemical systems.',
++    course: 'RS106',
++    lessons: [
++      {
++        _id: 'L1201',
++        name: 'Thermodynamics',
++        description: ': Principles of thermodynamics in chemical systems.',
++        module: 'M403',
++      },
++      {
++        _id: 'L1202',
++        name: 'Kinetics',
++        description: 'Exploring reaction rates and mechanisms.',
++        module: 'M403',
++      },
++      {
++        _id: 'L1203',
++        name: 'Quantum Chemistry',
++        description: 'Introduction to quantum mechanics in chemistry.',
++        module: 'M403',
++      },
++    ],
++  },
++  {
++    _id: 'M501',
++    name: 'Advanced Organic Synthesis',
++    description: 'Techniques and strategies for complex organic synthesis.',
++    course: 'RS104',
++    lessons: [
++      {
++        _id: 'L1301',
++        name: 'Retrosynthetic Analysis',
++        description:
++          'Planning organic syntheses using retrosynthetic analysis.',
++        module: 'M501',
++      },
++      {
++        _id: 'L1302',
++        name: 'Protecting Groups',
++        description: 'Use of protecting groups in organic synthesis.',
++        module: 'M501',
++      },
++      {
++        _id: 'L1303',
++        name: 'Stereochemistry in Synthesis',
++        description: 'Importance of stereochemistry in organic synthesis.',
++        module: 'M501',
++      },
++    ],
++  },
++  {
++    _id: 'M502',
++    name: 'Inorganic Reaction Mechanisms',
++    description: 'Mechanisms of inorganic reactions and their applications.',
++    course: 'RS105',
++    lessons: [
++      {
++        _id: 'L1401',
++        name: 'Ligand Substitution Reactions',
++        description:
++          'Exploring ligand substitution mechanisms in coordination complexes.',
++        module: 'M502',
++      },
++      {
++        _id: 'L1402',
++        name: 'Redox Reactions',
++        description: 'Understanding redox mechanisms in inorganic chemistry.',
++        module: 'M502',
++      },
++      {
++        _id: 'L1403',
++        name: 'Acid-Base Reactions',
++        description: 'Mechanisms of acid-base reactions in inorganic systems.',
++        module: 'M502',
++      },
++    ],
++  },
++  {
++    _id: 'M503',
++    name: 'Physical Chemistry Applications',
++    description:
++      'Applications of physical chemistry principles in real-world scenarios.',
++    course: 'RS106',
++    lessons: [
++      {
++        _id: 'L1501',
++        name: 'Spectroscopy Techniques',
++        description:
++          'Understanding various spectroscopy techniques and their applications.',
++        module: 'M503',
++      },
++      {
++        _id: 'L1502',
++        name: 'Chemical Kinetics in Industry',
++        description:
++          'Application of chemical kinetics in industrial processes.',
++        module: 'M503',
++      },
++      {
++        _id: 'L1503',
++        name: 'Thermodynamic Cycles',
++        description:
++          'Exploring thermodynamic cycles and their applications in engineering.',
++        module: 'M503',
++      },
++    ],
++  },
++  {
++    _id: 'M601',
++    name: 'Advanced Rocket Propulsion',
++    description:
++      'In-depth study of advanced rocket propulsion systems and technologies.',
++    course: 'RS101',
++    lessons: [
++      {
++        _id: 'L1601',
++        name: 'Hybrid Rocket Engines',
++        description: 'Understanding hybrid rocket propulsion systems.',
++        module: 'M601',
++      },
++      {
++        _id: 'L1602',
++        name: 'Electric Propulsion Systems',
++        description: 'Exploring electric propulsion technologies in rocketry.',
++        module: 'M601',
++      },
++      {
++        _id: 'L1603',
++        name: 'Advanced Combustion Techniques',
++        description:
++          'Techniques for enhancing combustion efficiency in rockets.',
++        module: 'M601',
++      },
++    ],
++  },
++  {
++    _id: 'M602',
++    name: 'Spacecraft Thermal Control',
++    description:
++      'Principles and practices of thermal control in spacecraft design.',
++    course: 'RS103',
++    lessons: [
++      {
++        _id: 'L1701',
++        name: 'Thermal Analysis Techniques',
++        description: 'Methods for analyzing thermal performance in spacecraft.',
++        module: 'M602',
++      },
++      {
++        _id: 'L1702',
++        name: 'Heat Transfer Mechanisms',
++        description:
++          'Understanding heat transfer mechanisms in space environments.',
++        module: 'M602',
++      },
++      {
++        _id: 'L1703',
++        name: 'Thermal Protection Materials',
++        description: 'Materials used for thermal protection in spacecraft.',
++        module: 'M602',
++      },
++    ],
++  },
++  {
++    _id: 'M603',
++    name: 'Advanced Aerodynamics',
++    description:
++      'Advanced concepts in aerodynamics and their applications in aerospace engineering.',
++    course: 'RS102',
++    lessons: [
++      {
++        _id: 'L1801',
++        name: 'Computational Fluid Dynamics (CFD)',
++        description: 'Using CFD for advanced aerodynamic analysis.',
++        module: 'M603',
++      },
++      {
++        _id: 'L1802',
++        name: 'Supersonic and Hypersonic Aerodynamics',
++        description: 'Understanding supersonic and hypersonic flow regimes.',
++        module: 'M603',
++      },
++      {
++        _id: 'L1803',
++        name: 'Aerodynamic Optimization Techniques',
++        description: 'Techniques for optimizing aerodynamic performance.',
++        module: 'M603',
++      },
++    ],
++  },
++  {
++    _id: 'M901',
++    name: 'Elvish Languages: Sindarin and Quenya',
++    description:
++      'Study of the structure, grammar, and script of the primary Elvish languages of Middle-earth.',
++    course: 'RS107',
++    lessons: [
++      {
++        _id: 'L2501',
++        name: 'Introduction to Elvish Philology',
++        description:
++          "Overview of Tolkien's approach to language creation and the significance of Elvish languages.",
++        module: 'M901',
++      },
++      {
++        _id: 'L2502',
++        name: 'Sindarin Grammar and Vocabulary',
++        description:
++          'Detailed study of Sindarin grammar, vocabulary, and pronunciation.',
++        module: 'M901',
++      },
++      {
++        _id: 'L2503',
++        name: 'Quenya Script and Inscriptions',
++        description:
++          'Learning the Tengwar script and reading Quenya inscriptions.',
++        module: 'M901',
++      },
++    ],
++  },
++  {
++    _id: 'M902',
++    name: 'Dwarvish and the Black Speech',
++    description:
++      'Exploration of Khuzdul (Dwarvish) and the Black Speech of Mordor, including their cultural significance.',
++    course: 'RS107',
++    lessons: [
++      {
++        _id: 'L2601',
++        name: 'Khuzdul: The Secret Language',
++        description:
++          'Study of Dwarvish language structure and its role in Dwarven society.',
++        module: 'M902',
++      },
++      {
++        _id: 'L2602',
++        name: 'The Black Speech of Mordor',
++        description:
++          'Origins, structure, and usage of the Black Speech in Middle-earth.',
++        module: 'M902',
++      },
++      {
++        _id: 'L2603',
++        name: 'Scripts and Inscriptions',
++        description:
++          'Analysis of runes and inscriptions found in Middle-earth artifacts.',
++        module: 'M902',
++      },
++    ],
++  },
++  {
++    _id: 'M903',
++    name: 'Language, Lore, and Power',
++    description:
++      "The role of language in shaping Middle-earth's history, lore, and power dynamics.",
++    course: 'RS107',
++    lessons: [
++      {
++        _id: 'L2701',
++        name: 'Philology and Myth-making',
++        description:
++          "How Tolkien's languages contribute to the mythos of Middle-earth.",
++        module: 'M903',
++      },
++      {
++        _id: 'L2702',
++        name: 'Language in Inscriptions and Prophecy',
++        description:
++          'Study of famous inscriptions and their narrative significance.',
++        module: 'M903',
++      },
++      {
++        _id: 'L2703',
++        name: 'Translation and Adaptation',
++        description:
++          "Challenges and methods in translating Middle-earth's languages.",
++        module: 'M903',
++      },
++    ],
++  },
++  {
++    _id: 'M1001',
++    name: 'Foundations of Inter-species Diplomacy',
++    description:
++      "Introduction to the principles and history of diplomacy among Middle-earth's peoples.",
++    course: 'RS108',
++    lessons: [
++      {
++        _id: 'L2801',
++        name: 'Historical Alliances and Treaties',
++        description: 'Key alliances and treaties that shaped Middle-earth.',
++        module: 'M1001',
++      },
++      {
++        _id: 'L2802',
++        name: 'Council of Elrond: A Case Study',
++        description:
++          'Analysis of the Council of Elrond as a model of multi-species diplomacy.',
++        module: 'M1001',
++      },
++      {
++        _id: 'L2803',
++        name: 'Conflict Resolution Strategies',
++        description:
++          'Methods used by different races to resolve disputes and maintain peace.',
++        module: 'M1001',
++      },
++    ],
++  },
++  {
++    _id: 'M1002',
++    name: 'Leadership and Wisdom Across Races',
++    description:
++      'Examining the qualities of leadership and wisdom in Elves, Men, Dwarves, and Wizards.',
++    course: 'RS108',
++    lessons: [
++      {
++        _id: 'L2901',
++        name: 'Elven Councils and Decision Making',
++        description: 'How Elves govern and make collective decisions.',
++        module: 'M1002',
++      },
++      {
++        _id: 'L2902',
++        name: 'The Role of Wizards in Diplomacy',
++        description:
++          'Influence of Wizards like Gandalf and Saruman in inter-species relations.',
++        module: 'M1002',
++      },
++      {
++        _id: 'L2903',
++        name: 'Human Kingdoms and Alliances',
++        description: 'Leadership structures and alliances among Men.',
++        module: 'M1002',
++      },
++    ],
++  },
++  {
++    _id: 'M1003',
++    name: 'Case Studies in Middle-earth Diplomacy',
++    description:
++      'In-depth analysis of major diplomatic events and conflicts in Middle-earth.',
++    course: 'RS108',
++    lessons: [
++      {
++        _id: 'L3001',
++        name: 'The War of the Ring',
++        description:
++          'Diplomatic and military strategies during the War of the Ring.',
++        module: 'M1003',
++      },
++      {
++        _id: 'L3002',
++        name: 'The Last Alliance of Elves and Men',
++        description: 'Formation and impact of the Last Alliance.',
++        module: 'M1003',
++      },
++      {
++        _id: 'L3003',
++        name: 'Aftermath and Rebuilding',
++        description: 'Post-war diplomacy and the rebuilding of Middle-earth.',
++        module: 'M1003',
++      },
++    ],
++  },
++];
+diff --git a/Kambaz/Database/users.js b/Kambaz/Database/users.js
+new file mode 100644
+index 0000000..ae5d035
+--- /dev/null
++++ b/Kambaz/Database/users.js
+@@ -0,0 +1,128 @@
++export default [
++  {
++    _id: '123',
++    username: 'iron_man',
++    password: 'stark123',
++    firstName: 'Tony',
++    lastName: 'Stark',
++    email: 'tony@stark.com',
++    dob: '1970-05-29T00:00:00.000Z',
++    role: 'FACULTY',
++    loginId: '001234561S',
++    section: 'S101',
++    lastActivity: '2020-10-01',
++    totalActivity: '10:21:32',
++  },
++  {
++    _id: '234',
++    username: 'dark_knight',
++    password: 'wayne123',
++    firstName: 'Bruce',
++    lastName: 'Wayne',
++    email: 'bruce@wayne.com',
++    dob: '1972-02-19',
++    role: 'STUDENT',
++    loginId: '001234562S',
++    section: 'S101',
++    lastActivity: '2020-11-02',
++    totalActivity: '15:32:43',
++  },
++  {
++    _id: '345',
++    username: 'black_widow',
++    password: 'romanoff123',
++    firstName: 'Natasha',
++    lastName: 'Romanoff',
++    email: 'natasha@avengers.com',
++    dob: '1984-11-22',
++    role: 'TA',
++    loginId: '001234564S',
++    section: 'S101',
++    lastActivity: '2020-11-05',
++    totalActivity: '13:23:34',
++  },
++  {
++    _id: '456',
++    username: 'thor_odinson',
++    password: 'mjolnir123',
++    firstName: 'Thor',
++    lastName: 'Odinson',
++    email: 'thor@asgard.com',
++    dob: '982-05-25',
++    role: 'STUDENT',
++    loginId: '001234565S',
++    section: 'S101',
++    lastActivity: '2020-12-01',
++    totalActivity: '11:22:33',
++  },
++  {
++    _id: '567',
++    username: 'hulk_smash',
++    password: 'banner123',
++    firstName: 'Bruce',
++    lastName: 'Banner',
++    email: 'bruce@avengers.com',
++    dob: '1969-12-18',
++    role: 'STUDENT',
++    loginId: '001234566S',
++    section: 'S101',
++    lastActivity: '2020-12-01',
++    totalActivity: '22:33:44',
++  },
++  {
++    _id: '678',
++    username: 'ring_bearer',
++    password: 'shire123',
++    firstName: 'Frodo',
++    lastName: 'Baggins',
++    email: 'frodo@shire.com',
++    dob: '1368-09-22',
++    role: 'FACULTY',
++    loginId: '001234567S',
++    section: 'S101',
++    lastActivity: '2020-12-02',
++    totalActivity: '44:33:22',
++  },
++  {
++    _id: '789',
++    username: 'strider',
++    password: 'aragorn123',
++    firstName: 'Aragorn',
++    lastName: 'Elessar',
++    email: 'aragorn@gondor.com',
++    dob: '2931-03-01',
++    role: 'TA',
++    loginId: '001234568S',
++    section: 'S101',
++    lastActivity: '2020-12-04',
++    totalActivity: '12:23:34',
++  },
++  {
++    _id: '890',
++    username: 'elf_archer',
++    password: 'legolas123',
++    firstName: 'Legolas',
++    lastName: 'Greenleaf',
++    email: 'legolas@mirkwood.com',
++    dob: '2879-07-15',
++    role: 'STUDENT',
++    loginId: '001234569S',
++    section: 'S101',
++    lastActivity: '2020-11-11',
++    totalActivity: '21:32:43',
++  },
++  {
++    _id: '777',
++    username: 'ada',
++    password: '123',
++    firstName: 'Ada',
++    lastName: 'Lovelace',
++    email: 'ada@lovelace.com',
++    dob: '1815-12-15',
++    role: 'ADMIN',
++    loginId: '002143650S',
++    section: 'S101',
++    lastActivity: '1852-11-27',
++    totalActivity: '21:32:43',
++  },
++];
+diff --git a/index.js b/index.js
+index a6f0c2f..c30f328 100644
+--- a/index.js
++++ b/index.js
+@@ -3,8 +3,9 @@ import { hello } from './Hello.js';
+ import Lab5 from './Lab5/index.js';
+ import cors from 'cors';
+ import session from 'express-session';
+-
++import UserRoutes from './Database/Kambaz/Users/routes.js';
+ const app = express();
++UserRoutes(app);
+ app.use(
+   cors({
+     credentials: true,
+diff --git a/package-lock.json b/package-lock.json
+index 7809096..87e384b 100644
+--- a/package-lock.json
++++ b/package-lock.json
+@@ -12,7 +12,8 @@
+         "cors": "^2.8.5",
+         "dotenv": "^17.2.1",
+         "express": "^5.1.0",
+-        "express-session": "^1.18.2"
++        "express-session": "^1.18.2",
++        "uuid": "^11.1.0"
+       }
+     },
+     "node_modules/accepts": {
+@@ -913,6 +914,19 @@
+         "node": ">= 0.8"
+       }
+     },
++    "node_modules/uuid": {
++      "version": "11.1.0",
++      "resolved": "https://registry.npmjs.org/uuid/-/uuid-11.1.0.tgz",
++      "integrity": "sha512-0/A9rDy9P7cJ+8w1c9WD9V//9Wj15Ce2MPz8Ri6032usz+NfePxx5AcN3bN+r6ZL6jEo066/yNYB3tn4pQEx+A==",
++      "funding": [
++        "https://github.com/sponsors/broofa",
++        "https://github.com/sponsors/ctavan"
++      ],
++      "license": "MIT",
++      "bin": {
++        "uuid": "dist/esm/bin/uuid"
++      }
++    },
+     "node_modules/vary": {
+       "version": "1.1.2",
+       "resolved": "https://registry.npmjs.org/vary/-/vary-1.1.2.tgz",
+diff --git a/package.json b/package.json
+index beb9de2..32ec95e 100644
+--- a/package.json
++++ b/package.json
+@@ -32,6 +32,7 @@
+     "cors": "^2.8.5",
+     "dotenv": "^17.2.1",
+     "express": "^5.1.0",
+-    "express-session": "^1.18.2"
++    "express-session": "^1.18.2",
++    "uuid": "^11.1.0"
+   }
+ }
