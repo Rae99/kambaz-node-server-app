@@ -4,14 +4,19 @@ import Lab5 from './Lab5/index.js';
 import cors from 'cors';
 import session from 'express-session';
 import UserRoutes from './Kambaz/Users/routes.js';
+import "dotenv/config";
 const app = express();
 
 app.use(
   cors({
-    credentials: true,
+    credentials: true, // allow cookies to be sent to the server
     origin: process.env.CLIENT_URL || 'http://localhost:5173',
   })
 );
+// support cookies
+// restrict cross origin resource
+// sharing to the react application
+
 const sessionOptions = {
   secret: process.env.SESSION_SECRET || 'kambaz',
   resave: false,
@@ -25,22 +30,23 @@ if (process.env.SERVER_ENV !== 'development') {
     domain: process.env.SERVER_URL,
   };
 }
+// See note_about_index.txt for more information
 
+// Make sure to configure sessions after configuring cors.
 // The following two lines must be before the routes are defined
 app.use(session(sessionOptions)); // This is a middleware that creates a session for the user
 app.use(express.json()); // This is a middleware that parses the request body and makes it available in req.body
-
 
 UserRoutes(app);
 hello(app);
 Lab5(app);
 app.listen(process.env.PORT || 4000);
 
-// JS object (client) 
-// → JSON string 
-// → HTTP bytes 
-// → (server) 
-// → express.json() 
+// JS object (client)
+// → JSON string
+// → HTTP bytes
+// → (server)
+// → express.json()
 // → JS object (req.body)
 
 // At first, Express only receives raw bytes and does not automatically convert them into JavaScript objects.
