@@ -6,10 +6,10 @@ export default function UserRoutes(app) {
   const findUserById = (req, res) => {};
   const updateUser = (req, res) => {
     const userId = req.params.userId;
-    const userUpdates = req.body;
+    const userUpdates = req.body; //  a JavaScript object, not necessarily a user object — it’s just the properties sent in the request (maybe { email: "new@example.com" } or something).
     dao.updateUser(userId, userUpdates);
-    const currentUser = dao.findUserById(userId); // After the update, you fetch the fresh user from the DAO:
-    req.session['currentUser'] = currentUser; // Then you overwrite the session’s copy:
+    const currentUser = dao.findUserById(userId); // After the update, you fetch the fresh user(new object) from the DAO:
+    req.session['currentUser'] = currentUser; // Then you overwrite the session’s copy, making session.currentUser point to the new object.
     res.json(currentUser);
   };
 
