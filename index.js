@@ -4,6 +4,7 @@ import Lab5 from './Lab5/index.js';
 import cors from 'cors';
 import session from 'express-session';
 import UserRoutes from './Kambaz/Users/routes.js';
+import CourseRoutes from './Kambaz/Courses/routes.js';
 import "dotenv/config";
 const app = express();
 
@@ -38,6 +39,7 @@ app.use(session(sessionOptions)); // This is a middleware that creates a session
 app.use(express.json()); // This is a middleware that parses the request body and makes it available in req.body
 
 UserRoutes(app);
+CourseRoutes(app);
 hello(app);
 Lab5(app);
 app.listen(process.env.PORT || 4000);

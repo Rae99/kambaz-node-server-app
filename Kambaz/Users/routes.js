@@ -1,15 +1,18 @@
 import * as dao from './dao.js';
+import * as courseDao from '../Courses/dao.js';
+
 export default function UserRoutes(app) {
   const createUser = (req, res) => {};
   const deleteUser = (req, res) => {};
   const findAllUsers = (req, res) => {};
   const findUserById = (req, res) => {};
+
   const updateUser = (req, res) => {
     const userId = req.params.userId;
-    const userUpdates = req.body; //  a JavaScript object, not necessarily a user object — it’s just the properties sent in the request (maybe { email: "new@example.com" } or something).
+    const userUpdates = req.body; //  a JavaScript object, not necessarily a user object — it's just the properties sent in the request (maybe { email: "new@example.com" } or something).
     dao.updateUser(userId, userUpdates);
     const currentUser = dao.findUserById(userId); // After the update, you fetch the fresh user(new object) from the DAO:
-    req.session['currentUser'] = currentUser; // Then you overwrite the session’s copy, making session.currentUser point to the new object.
+    req.session['currentUser'] = currentUser; // Then you overwrite the session's copy, making session.currentUser point to the new object.
     res.json(currentUser);
   };
 
@@ -49,6 +52,22 @@ export default function UserRoutes(app) {
     res.sendStatus(200);
   };
 
+  const findCoursesForEnrolledUser = (req, res) => {
+    let { userId } = req.params;
+    if (userId === 'current') {
+      const currentUser = req.session['currentUser'];
+      if (!currentUser) {
+        res.sendStatus(401);
+        return;
+      }
+      userId = currentUser._id;
+    }
+    const courses = courseDao.findCoursesForEnrolledUser(userId);
+    res.json(courses);
+  };
+
+  // Route definitions - more specific routes first
+  app.get('/api/users/:userId/courses', findCoursesForEnrolledUser);
   app.post('/api/users', createUser);
   app.get('/api/users', findAllUsers);
   app.get('/api/users/:userId', findUserById);
