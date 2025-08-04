@@ -42,3 +42,13 @@ app.listen(process.env.PORT || 4000);
 // → (server) 
 // → express.json() 
 // → JS object (req.body)
+
+// At first, Express only receives raw bytes and does not automatically convert them into JavaScript objects.
+
+// Middleware (express.json())
+// 	•	express.json() is a body-parser middleware.
+// 	•	It does the following:
+// 	1.	Reads the raw bytes from the HTTP request body
+// 	2.	Checks whether the Content-Type is application/json
+// 	3.	Uses JSON.parse() to convert the raw bytes into a JavaScript object
+// 	4.	Attaches the resulting object to req.body
