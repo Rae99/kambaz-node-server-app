@@ -30,7 +30,11 @@ export default function UserRoutes(app) {
     res.json(currentUser);
   };
 
-  const signout = (req, res) => {};
+  const signout = (req, res) => {
+    currentUser = null;
+    res.sendStatus(200);
+  };
+
 
   app.post('/api/users', createUser);
   app.get('/api/users', findAllUsers);
