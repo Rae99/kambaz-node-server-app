@@ -40,6 +40,8 @@ app.use(express.json()); // This is a middleware that parses the request body an
 
 UserRoutes(app);
 CourseRoutes(app);
+ModuleRoutes(app);
+// EnrollmentRoutes(app);
 hello(app);
 Lab5(app);
 app.listen(process.env.PORT || 4000);
