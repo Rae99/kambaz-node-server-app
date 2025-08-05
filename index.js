@@ -13,10 +13,11 @@ const app = express();
 
 app.use(
   cors({
-    credentials: true, // allow cookies to be sent to the server
-    origin: process.env.CLIENT_URL || 'http://localhost:5173',
+    credentials: true,
+    origin: process.env.CLIENT_URL || "http://localhost:5173",
   })
-);
+ );
+ 
 // support cookies
 // restrict cross origin resource
 // sharing to the react application
@@ -31,7 +32,8 @@ if (process.env.SERVER_ENV !== 'development') {
   sessionOptions.cookie = {
     sameSite: 'none',
     secure: true,
-    domain: process.env.SERVER_URL,
+    // Remove domain restriction for cross-origin requests
+    // domain: process.env.SERVER_URL,
   };
 }
 // See note_about_index.txt for more information
