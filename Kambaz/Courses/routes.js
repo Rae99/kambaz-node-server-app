@@ -15,6 +15,14 @@ export default function CourseRoutes(app) {
     }
   };
 
+  const updateCourse = (req, res) => {
+    const { courseId } = req.params;
+    const courseUpdates = req.body;
+    const status = dao.updateCourse(courseId, courseUpdates);
+    res.send(status);
+  };
+      
+  app.put('/api/courses/:courseId', updateCourse);
   app.delete('/api/courses/:courseId', deleteCourse);
   app.get('/api/courses', findAllCourses);
 }
