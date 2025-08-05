@@ -23,10 +23,18 @@ export function createCourse(course) {
 }
 
 export function deleteCourse(courseId) {
-  const { courses, enrollments } = Database;
-  Database.courses = courses.filter((course) => course._id !== courseId);
-  Database.enrollments = enrollments.filter(
-    (enrollment) => enrollment.course !== courseId
-  );
+    const { courses, enrollments } = Database;
+    const beforeCount = courses.length;
+    Database.courses = courses.filter((course) => course._id !== courseId);
+    Database.enrollments = enrollments.filter(
+      (enrollment) => enrollment.course !== courseId
+    );
+    const afterCount = Database.courses.length;
+    if (afterCount < beforeCount) {
+      return { success: true, deleted: 1 };
+    } else {
+      return { success: false, deleted: 0, error: "Course not found" };
+    }
+  
 
 }

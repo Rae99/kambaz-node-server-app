@@ -8,7 +8,11 @@ export default function CourseRoutes(app) {
   const deleteCourse = (req, res) => {
     const { courseId } = req.params;
     const status = dao.deleteCourse(courseId);
-    res.send(status);
+    if (status.success) {
+      res.status(200).send(status);
+    } else {
+      res.status(404).send(status);
+    }
   };
 
   app.delete('/api/courses/:courseId', deleteCourse);
