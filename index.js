@@ -5,6 +5,7 @@ import cors from 'cors';
 import session from 'express-session';
 import UserRoutes from './Kambaz/Users/routes.js';
 import CourseRoutes from './Kambaz/Courses/routes.js';
+import ModuleRoutes from './Kambaz/Modules/routes.js';
 import "dotenv/config";
 const app = express();
 
