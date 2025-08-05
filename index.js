@@ -14,7 +14,7 @@ const app = express();
 app.use(
   cors({
     credentials: true,
-    origin: process.env.CLIENT_URL || "http://localhost:5173",
+    origin: process.env.CLIENT_URL || 'http://localhost:5173',
   })
  );
  
@@ -32,8 +32,7 @@ if (process.env.SERVER_ENV !== 'development') {
   sessionOptions.cookie = {
     sameSite: 'none',
     secure: true,
-    // Remove domain restriction for cross-origin requests
-    // domain: process.env.SERVER_URL,
+    domain: process.env.SERVER_URL,
   };
 }
 // See note_about_index.txt for more information
