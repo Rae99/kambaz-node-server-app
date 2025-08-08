@@ -1,7 +1,10 @@
 import { v4 as uuidv4 } from 'uuid';
 import model from './model.js';
 
-export const createUser = (user) => {}; // implemented later
+export const createUser = (user) => {
+  const newUser = { ...user, _id: uuidv4() };
+  return model.create(newUser);
+};
 
 export const findAllUsers = () => model.find();
 
@@ -16,7 +19,10 @@ export const findUserByCredentials = (username, password) =>
 // Since the key name and the variable name are the same, you can use the object property shorthand,
 
 export const updateUser = (userId, user) =>
-  model.updateOne({ _id: userId }, { $set: user });
+  model.findByIdAndUpdate(userId, { $set: user }, { new: true });
+
+// Notice that updateOne() does not return the updated document.
+// { new: true }  This option returns the updated document
 
 //	user is a variable that holds an object containing the fields to update.
 // const user = { username: "Alice", password: "1234" };
