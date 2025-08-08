@@ -1,6 +1,16 @@
 import { v4 as uuidv4 } from 'uuid';
 import model from './model.js';
 
+export const findUsersByPartialName = (partialName) => {
+  const regex = new RegExp(partialName, "i"); // 'i' makes it case-insensitive
+  return model.find({
+    $or: [{ firstName: { $regex: regex } }, { lastName: { $regex: regex } }],
+  });
+};
+
+
+export const findUsersByRole = (role) => model.find({ role: role }); // or just model.find({ role })
+
 export const createUser = (user) => {
   const newUser = { ...user, _id: uuidv4() };
   return model.create(newUser);
