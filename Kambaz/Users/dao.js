@@ -1,6 +1,8 @@
 import { v4 as uuidv4 } from 'uuid';
 import model from './model.js';
 
+
+
 export const findUsersByPartialName = (partialName) => {
   const regex = new RegExp(partialName, 'i'); // 'i' makes it case-insensitive
   return model.find({
