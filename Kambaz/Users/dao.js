@@ -1,8 +1,6 @@
 import { v4 as uuidv4 } from 'uuid';
 import model from './model.js';
 
-
-
 export const findUsersByPartialName = (partialName) => {
   const regex = new RegExp(partialName, 'i'); // 'i' makes it case-insensitive
   return model.find({
@@ -24,6 +22,7 @@ export const createUser = (user) => {
   const newUser = { ...user, _id: uuidv4() };
   return model.create(newUser);
 };
+// Make sure the incoming user object does not have an _id property since it can interfere with the database insert operation.
 
 export const findAllUsers = () => model.find();
 
