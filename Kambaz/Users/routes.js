@@ -31,6 +31,14 @@ export default function UserRoutes(app) {
   const findAllUsers = async (req, res) => {
     try {
       const { role, name } = req.query;
+
+      if (name && role) {
+        // Both name and role filters
+        const users = await dao.findUsersByNameAndRole(name, role);
+        res.json(users);
+        return;
+      }
+
       if (role) {
         const users = await dao.findUsersByRole(role);
         res.json(users);
