@@ -12,7 +12,22 @@ import mongoose from 'mongoose';
 import 'dotenv/config';
 const CONNECTION_STRING =
   process.env.DATABASE_CONNECTION_STRING || 'mongodb://127.0.0.1:27017/kambaz';
-mongoose.connect(CONNECTION_STRING);
+
+console.log('🔗 Attempting to connect to MongoDB...');
+console.log('📍 Environment:', process.env.SERVER_ENV || 'development');
+console.log(
+  '🔑 Using DATABASE_CONNECTION_STRING:',
+  CONNECTION_STRING ? 'SET' : 'NOT SET'
+);
+
+mongoose
+  .connect(CONNECTION_STRING)
+  .then(() => {
+    console.log('✅ MongoDB connected successfully');
+  })
+  .catch((error) => {
+    console.error('❌ MongoDB connection failed:', error.message);
+  });
 const app = express();
 
 app.use(
@@ -53,6 +68,23 @@ AssignmentRoutes(app);
 EnrollmentRoutes(app);
 hello(app);
 Lab5(app);
+
+// Debug endpoint to check MongoDB connection
+app.get('/api/debug/db', async (req, res) => {
+  try {
+    const dbState = mongoose.connection.readyState;
+    const states = ['disconnected', 'connected', 'connecting', 'disconnecting'];
+    res.json({
+      connectionState: states[dbState],
+      dbName: mongoose.connection.db?.databaseName,
+      host: mongoose.connection.host,
+      port: mongoose.connection.port,
+    });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
 app.listen(process.env.PORT || 4000);
 
 // JS object (client)
