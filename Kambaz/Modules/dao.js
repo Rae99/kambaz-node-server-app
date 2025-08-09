@@ -1,9 +1,8 @@
-import Database from '../Database/index.js';
 import { v4 as uuidv4 } from 'uuid';
+import model from './model.js';
 
 export function findModulesForCourse(courseId) {
-  const { modules } = Database;
-  return modules.filter((module) => module.course === courseId);
+  return model.find({ course: courseId });
 }
 
 export function createModule(module) {
