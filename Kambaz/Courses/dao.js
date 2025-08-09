@@ -16,38 +16,26 @@ export function findCoursesForEnrolledUser(userId) {
 }
 
 export function createCourse(course) {
-  const newCourse = { ...course, _id: uuidv4() };
-  Database.courses = [...Database.courses, newCourse];
-  return newCourse;
+  return model.create(course);
 }
 
 export function deleteCourse(courseId) {
-    const { courses, enrollments } = Database;
-    const beforeCount = courses.length;
-    Database.courses = courses.filter((course) => course._id !== courseId);
-    Database.enrollments = enrollments.filter(
-      (enrollment) => enrollment.course !== courseId
-    );
-    const afterCount = Database.courses.length;
-    if (afterCount < beforeCount) {
-      return { success: true, deleted: 1 };
-    } else {
-      return { success: false, deleted: 0, error: "Course not found" };
-    }
-}
+  return model.deleteOne({ _id: courseId });
+ }
+ 
 
 export function updateCourse(courseId, courseUpdates) {
-    const { courses } = Database;
-    const course = courses.find((course) => course._id === courseId);
-    Object.assign(course, courseUpdates);
-    return course;
-  }
+  const { courses } = Database;
+  const course = courses.find((course) => course._id === courseId);
+  Object.assign(course, courseUpdates);
+  return course;
+}
 
-  // Object.assign(target, source)
-	// •	Mutates the target object in place.
-	// •	Copies all properties from source to target.
+// Object.assign(target, source)
+// •	Mutates the target object in place.
+// •	Copies all properties from source to target.
 // •	So the object in the original array (and “database”) is updated in place.
-    
+
 // “normal” assign (=)
 // You are replacing the reference to the course object, not updating the original course in the array.
 // •	This means the original courses array still points to the old object, so the update is NOT reflected in the array/database.

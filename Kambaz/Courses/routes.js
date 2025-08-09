@@ -7,14 +7,15 @@ export default function CourseRoutes(app) {
     res.send(courses);
   };
 
+  const createCourse = async (req, res) => {
+    const course = await dao.createCourse(req.body);
+    res.json(course);
+  };
+
   const deleteCourse = async (req, res) => {
     const { courseId } = req.params;
     const status = await dao.deleteCourse(courseId);
-    if (status.success) {
-      res.status(200).send(status);
-    } else {
-      res.status(404).send(status);
-    }
+    res.send(status);
   };
 
   const updateCourse = async (req, res) => {
@@ -39,10 +40,11 @@ export default function CourseRoutes(app) {
     const newModule = await modulesDao.createModule(module);
     res.send(newModule);
   };
-    
+
   app.post('/api/courses/:courseId/modules', createModuleForCourse);
   app.get('/api/courses/:courseId/modules', findModulesForCourse);
   app.put('/api/courses/:courseId', updateCourse);
   app.delete('/api/courses/:courseId', deleteCourse);
   app.get('/api/courses', findAllCourses);
+  app.post('/api/courses', createCourse);
 }
