@@ -1,11 +1,17 @@
 import model from './model.js';
+import enrollmentModel from '../Enrollments/model.js';
 
 export function findAllCourses() {
   return model.find();
 }
 
-export function findCoursesForEnrolledUser(userId) {
-  return model.find({ _id: { $in: enrollments.map((e) => e.course) } });
+export async function findCoursesForEnrolledUser(userId) {
+  // First find all enrollments for this user
+  const enrollments = await enrollmentModel.find({ user: userId });
+  // Extract course IDs
+  const courseIds = enrollments.map((enrollment) => enrollment.course);
+  // Find all courses with those IDs
+  return model.find({ _id: { $in: courseIds } });
 }
 
 export function createCourse(course) {

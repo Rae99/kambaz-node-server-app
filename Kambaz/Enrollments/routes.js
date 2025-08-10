@@ -1,62 +1,60 @@
 import * as dao from './dao.js';
 
 export default function EnrollmentRoutes(app) {
-  const findAllEnrollments = (req, res) => {
-    const enrollments = dao.findAllEnrollments();
-    res.json(enrollments);
+  const findAllEnrollments = async (req, res) => {
+    try {
+      const enrollments = await dao.findAllEnrollments();
+      res.json(enrollments);
+    } catch (error) {
+      console.error('Find all enrollments error:', error);
+      res.status(500).json({ message: 'Internal server error' });
+    }
   };
 
-  const findEnrollmentsForUser = (req, res) => {
-    const { userId } = req.params;
-    const enrollments = dao.findEnrollmentsForUser(userId);
-    res.json(enrollments);
+  const findEnrollmentsForUser = async (req, res) => {
+    try {
+      const { userId } = req.params;
+      const enrollments = await dao.findEnrollmentsForUser(userId);
+      res.json(enrollments);
+    } catch (error) {
+      console.error('Find enrollments for user error:', error);
+      res.status(500).json({ message: 'Internal server error' });
+    }
   };
 
-  const findEnrollmentsForCourse = (req, res) => {
-    const { courseId } = req.params;
-    const enrollments = dao.findEnrollmentsForCourse(courseId);
-    res.json(enrollments);
+  const findEnrollmentsForCourse = async (req, res) => {
+    try {
+      const { courseId } = req.params;
+      const enrollments = await dao.findEnrollmentsForCourse(courseId);
+      res.json(enrollments);
+    } catch (error) {
+      console.error('Find enrollments for course error:', error);
+      res.status(500).json({ message: 'Internal server error' });
+    }
   };
 
-  const findUsersForCourse = (req, res) => {
-    const { courseId } = req.params;
-    const users = dao.findUsersForCourse(courseId);
-    res.json(users);
+  const findUsersForCourse = async (req, res) => {
+    try {
+      const { courseId } = req.params;
+      const users = await dao.findUsersForCourse(courseId);
+      res.json(users);
+    } catch (error) {
+      console.error('Find users for course error:', error);
+      res.status(500).json({ message: 'Internal server error' });
+    }
   };
 
-  const enrollUserInCourse = async (req, res) => {
+  // enrollUserInCourse and unenrollUserFromCourse functions moved to Users/routes.js
+
+  const checkEnrollmentStatus = async (req, res) => {
     try {
       const { userId, courseId } = req.params;
-      const result = await dao.enrollUserInCourse(userId, courseId);
-
-      if (result.success) {
-        res.status(201).json(result);
-      } else {
-        res.status(400).json(result);
-      }
+      const isEnrolled = await dao.isUserEnrolledInCourse(userId, courseId);
+      res.json({ enrolled: isEnrolled });
     } catch (error) {
-      console.error('Enrollment error:', error);
-      res
-        .status(500)
-        .json({ success: false, message: 'Internal server error' });
+      console.error('Check enrollment status error:', error);
+      res.status(500).json({ message: 'Internal server error' });
     }
-  };
-
-  const unenrollUserFromCourse = (req, res) => {
-    const { userId, courseId } = req.params;
-    const result = dao.unenrollUserFromCourse(userId, courseId);
-
-    if (result.success) {
-      res.status(200).json(result);
-    } else {
-      res.status(404).json(result);
-    }
-  };
-
-  const checkEnrollmentStatus = (req, res) => {
-    const { userId, courseId } = req.params;
-    const isEnrolled = dao.isUserEnrolledInCourse(userId, courseId);
-    res.json({ enrolled: isEnrolled });
   };
 
   // Route definitions
@@ -65,9 +63,9 @@ export default function EnrollmentRoutes(app) {
   app.get('/api/courses/:courseId/enrollments', findEnrollmentsForCourse);
   app.get('/api/courses/:courseId/users', findUsersForCourse);
 
-  // Enrollment operations
-  app.post('/api/courses/:courseId/enroll/:userId', enrollUserInCourse);
-  app.delete('/api/courses/:courseId/unenroll/:userId', unenrollUserFromCourse);
+  // Enrollment operations moved to Users/routes.js
+  // app.post('/api/users/:uid/courses/:cid', enrollUserInCourse);
+  // app.delete('/api/users/:uid/courses/:cid', unenrollUserFromCourse);
   app.get(
     '/api/courses/:courseId/users/:userId/enrollment',
     checkEnrollmentStatus

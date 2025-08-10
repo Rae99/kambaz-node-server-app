@@ -177,7 +177,13 @@ export default function UserRoutes(app) {
         return res.status(401).json({ error: 'Not logged in' });
       }
       const newCourse = await courseDao.createCourse(req.body);
-      enrollmentsDao.enrollUserInCourse(currentUser._id, newCourse._id);
+      const enrollResult = await enrollmentsDao.enrollUserInCourse(
+        currentUser._id,
+        newCourse._id
+      );
+      if (!enrollResult.success) {
+        console.warn('Enrollment warning:', enrollResult.message);
+      }
       res.json(newCourse);
     } catch (error) {
       console.error('Create course error:', error);
@@ -187,9 +193,54 @@ export default function UserRoutes(app) {
     }
   };
 
+  const enrollUserInCourse = async (req, res) => {
+    try {
+      const { uid, cid } = req.params; // uid = userId, cid = courseId
+      const result = await enrollmentsDao.enrollUserInCourse(uid, cid);
+
+      if (result.success) {
+        res.status(201).json(result);
+      } else {
+        res.status(400).json(result);
+      }
+    } catch (error) {
+      console.error('Enrollment error:', error);
+      res
+        .status(500)
+        .json({ success: false, message: 'Internal server error' });
+    }
+  };
+
+  const unenrollUserFromCourse = async (req, res) => {
+    try {
+      const { uid, cid } = req.params; // uid = userId, cid = courseId
+      const result = await enrollmentsDao.unenrollUserFromCourse(uid, cid);
+
+      if (result.deletedCount > 0) {
+        res
+          .status(200)
+          .json({ success: true, message: 'Unenrolled successfully' });
+      } else {
+        res
+          .status(404)
+          .json({ success: false, message: 'Enrollment not found' });
+      }
+    } catch (error) {
+      console.error('Unenroll error:', error);
+      res
+        .status(500)
+        .json({ success: false, message: 'Internal server error' });
+    }
+  };
+
   // Route definitions - more specific routes first
   app.post('/api/users/current/courses', createCourse);
   app.get('/api/users/:userId/courses', findCoursesForEnrolledUser);
+
+  // Enrollment routes with semantic URLs
+  app.post('/api/users/:uid/courses/:cid', enrollUserInCourse);
+  app.delete('/api/users/:uid/courses/:cid', unenrollUserFromCourse);
+
   app.post('/api/users', createUser);
   app.get('/api/users', findAllUsers);
   app.get('/api/users/:userId', findUserById);
