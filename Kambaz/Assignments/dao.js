@@ -1,48 +1,31 @@
-import Database from '../Database/index.js';
 import { v4 as uuidv4 } from 'uuid';
+import model from './model.js';
 
-export function findAllAssignments() {
-  return Database.assignments;
+export async function findAllAssignments() {
+  return model.find();
 }
 
-export function findAssignmentById(assignmentId) {
-  const { assignments } = Database;
-  return assignments.find((assignment) => assignment._id === assignmentId);
+export async function findAssignmentById(assignmentId) {
+  return model.findById(assignmentId);
 }
 
-export function findAssignmentsForCourse(courseId) {
-  const { assignments } = Database;
-  return assignments.filter((assignment) => assignment.course === courseId);
+export async function findAssignmentsForCourse(courseId) {
+  return model.find({ course: courseId });
 }
 
-export function createAssignment(assignment) {
+export async function createAssignment(assignment) {
   const newAssignment = { ...assignment, _id: uuidv4() };
-  Database.assignments = [...Database.assignments, newAssignment];
-  return newAssignment;
+  return model.create(newAssignment);
 }
 
-export function updateAssignment(assignmentId, assignmentUpdates) {
-  const { assignments } = Database;
-  const assignment = assignments.find(
-    (assignment) => assignment._id === assignmentId
+export async function updateAssignment(assignmentId, assignmentUpdates) {
+  return model.findByIdAndUpdate(
+    assignmentId,
+    { $set: assignmentUpdates },
+    { new: true }
   );
-  if (assignment) {
-    Object.assign(assignment, assignmentUpdates);
-    return assignment;
-  }
-  return null;
 }
 
-export function deleteAssignment(assignmentId) {
-  const { assignments } = Database;
-  const beforeCount = assignments.length;
-  Database.assignments = assignments.filter(
-    (assignment) => assignment._id !== assignmentId
-  );
-  const afterCount = Database.assignments.length;
-  if (afterCount < beforeCount) {
-    return { success: true, deleted: 1 };
-  } else {
-    return { success: false, deleted: 0, error: 'Assignment not found' };
-  }
+export async function deleteAssignment(assignmentId) {
+  return model.deleteOne({ _id: assignmentId });
 }
