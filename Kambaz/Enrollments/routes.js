@@ -24,14 +24,21 @@ export default function EnrollmentRoutes(app) {
     res.json(users);
   };
 
-  const enrollUserInCourse = (req, res) => {
-    const { userId, courseId } = req.params;
-    const result = dao.enrollUserInCourse(userId, courseId);
+  const enrollUserInCourse = async (req, res) => {
+    try {
+      const { userId, courseId } = req.params;
+      const result = await dao.enrollUserInCourse(userId, courseId);
 
-    if (result.success) {
-      res.status(201).json(result);
-    } else {
-      res.status(400).json(result);
+      if (result.success) {
+        res.status(201).json(result);
+      } else {
+        res.status(400).json(result);
+      }
+    } catch (error) {
+      console.error('Enrollment error:', error);
+      res
+        .status(500)
+        .json({ success: false, message: 'Internal server error' });
     }
   };
 

@@ -27,12 +27,37 @@ export function isUserEnrolledInCourse(userId, courseId) {
   return model.exists({ user: userId, course: courseId });
 }
 
-export function enrollUserInCourse(userId, courseId) {
-  return model.create({
+export async function enrollUserInCourse(userId, courseId) {
+  // Check if already enrolled
+  const existingEnrollment = await model.findOne({
     user: userId,
     course: courseId,
-    _id: `${userId}-${courseId}`,
   });
+  if (existingEnrollment) {
+    return {
+      success: false,
+      message: 'User already enrolled in this course',
+      enrollment: existingEnrollment,
+    };
+  }
+
+  try {
+    const enrollment = await model.create({
+      user: userId,
+      course: courseId,
+      _id: `${userId}-${courseId}`,
+    });
+    return { success: true, enrollment };
+  } catch (error) {
+    if (error.code === 11000) {
+      // Duplicate key error
+      return {
+        success: false,
+        message: 'User already enrolled in this course',
+      };
+    }
+    throw error;
+  }
 }
 
 export function unenrollUserFromCourse(userId, courseId) {
