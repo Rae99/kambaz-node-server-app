@@ -38,7 +38,7 @@ const quizSchema = new mongoose.Schema(
     quizType: String,
     shuffleAnswers: { type: Boolean, default: false },
     allowMultipleAttempts: { type: Boolean, default: false },
-    showCorrectAnswers: { type: Boolean, default: false },
+    showCorrectAnswers: { type: String, default: 'immediately' },
   },
   { collection: 'quizzes' }
 );
