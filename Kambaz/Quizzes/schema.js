@@ -25,16 +25,20 @@ const questionSchema = new mongoose.Schema({
 const quizSchema = new mongoose.Schema(
   {
     _id: String,
-    title: String,
+    title: { type: String, required: true },
     description: String,
-    courseId: String,
-    timeLimit: Number,
-    availableDate: Date,
+    courseId: { type: String, required: true },
+    timeLimit: Number, // in minutes
+    availableDate: Date, // when quiz becomes available
     dueDate: Date,
-    isPublished: Boolean,
+    isPublished: { type: Boolean, default: false },
     questions: [questionSchema],
-    createdAt: Date,
-    updatedAt: Date,
+    createdAt: { type: Date, default: Date.now },
+    updatedAt: { type: Date, default: Date.now },
+    quizType: String,
+    shuffleAnswers: { type: Boolean, default: false },
+    allowMultipleAttempts: { type: Boolean, default: false },
+    showCorrectAnswers: { type: Boolean, default: false },
   },
   { collection: 'quizzes' }
 );

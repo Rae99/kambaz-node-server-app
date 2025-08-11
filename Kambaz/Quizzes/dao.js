@@ -1,4 +1,4 @@
-// 处理所有 MongoDB 操作
+
 // findAllQuizzes, findQuizzesByCourse, createQuiz, updateQuiz, deleteQuiz 等
 
 import model from './model.js';
@@ -9,6 +9,10 @@ export async function findAllQuizzes() {
 
 export async function findQuizzesByCourse(courseId) {
   return model.find({ courseId });
+}
+
+export async function findQuizById(qid) {
+  return model.findById(qid);
 }
 
 export async function createQuizForCourse(courseId, quiz) {
