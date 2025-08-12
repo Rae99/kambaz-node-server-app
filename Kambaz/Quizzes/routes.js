@@ -28,7 +28,7 @@ export default function QuizRoutes(app) {
       const { qid } = req.params;
       const result = await dao.deleteQuiz(qid);
 
-      if (result && result.deletedCount > 0) {
+      if (result) {
         res.json({ success: true, message: 'Quiz deleted successfully' });
       } else {
         res.status(404).json({ error: 'Quiz not found' });
