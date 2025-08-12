@@ -1,4 +1,3 @@
-
 // findAllQuizzes, findQuizzesByCourse, createQuiz, updateQuiz, deleteQuiz 等
 
 import model from './model.js';
