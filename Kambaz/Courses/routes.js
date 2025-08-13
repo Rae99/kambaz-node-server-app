@@ -51,17 +51,35 @@ export default function CourseRoutes(app) {
     const { cid } = req.params;
     const users = await enrollmentsDao.findUsersForCourse(cid);
     res.json(users);
-  }
+  };
 
   const findQuizzesByCourse = async (req, res) => {
-    const { courseId } = req.params;
-    const quizzes = await quizzesDao.findQuizzesByCourse(courseId);
-    res.json(quizzes);
+    try {
+      const { courseId } = req.params;
+      const currentUser = req.session?.currentUser;
+
+      if (!currentUser) {
+        return res.status(401).json({ error: 'Authentication required' });
+      }
+
+      let quizzes = await quizzesDao.findQuizzesByCourse(courseId);
+
+      // Students(and users) can only see published quizzes
+      if (currentUser.role === 'STUDENT' || currentUser.role === 'USER') {
+        quizzes = quizzes.filter((quiz) => quiz.isPublished === true);
+      }
+
+      res.json(quizzes);
+    } catch (error) {
+      console.error('Find quizzes by course error:', error);
+      res.status(500).json({ error: 'Internal server error' });
+    }
   };
 
   const createQuizForCourse = async (req, res) => {
+    const { courseId } = req.params;
     const quiz = req.body;
-    const newQuiz = await quizzesDao.createQuizForCourse(quiz);
+    const newQuiz = await quizzesDao.createQuizForCourse(courseId, quiz);
     res.json(newQuiz);
   };
 
