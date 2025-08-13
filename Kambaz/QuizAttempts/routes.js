@@ -384,8 +384,8 @@ export default function QuizAttemptRoutes(app) {
         return res.status(400).json({ error: 'Attempt already submitted' });
       }
 
-      // Students can only submit their own attempts
-      if (isStudent(currentUser) && attempt.studentId !== currentUser._id) {
+      // Students and users can only submit their own attempts
+      if (isStudentOrUser(currentUser) && attempt.studentId !== currentUser._id) {
         return res.status(403).json({ error: 'Access denied' });
       }
 
