@@ -251,13 +251,98 @@ export default function QuizAttemptRoutes(app) {
       }
 
       // Students can only view their own attempts
-      if (isStudentOrUser(currentUser) && attempt.studentId._id !== currentUser._id) {
+      if (
+        isStudentOrUser(currentUser) &&
+        attempt.studentId._id !== currentUser._id
+      ) {
         return res.status(403).json({ error: 'Access denied' });
       }
 
       res.json(attempt);
     } catch (error) {
       console.error('Find attempt by ID error:', error);
+      res.status(500).json({ error: 'Internal server error' });
+    }
+  };
+
+  // Simplified API for frontend - auto-handle attempt creation
+  const saveQuizProgress = async (req, res) => {
+    try {
+      const { quizId } = req.params;
+      const { answers, timeSpent } = req.body;
+      const currentUser = req.session?.currentUser;
+
+      if (!currentUser) {
+        return res.status(401).json({ error: 'Authentication required' });
+      }
+
+      // Find or create current attempt for this user and quiz
+      let attempt = await dao.findLatestAttempt(currentUser._id, quizId);
+
+      if (!attempt || attempt.isCompleted) {
+        // Need to start a new attempt
+        const quizModel = (await import('../Quizzes/model.js')).default;
+        const quiz = await quizModel.findById(quizId);
+
+        if (!quiz) {
+          return res.status(404).json({ error: 'Quiz not found' });
+        }
+
+        // Students can only take published quizzes
+        if (isStudentOrUser(currentUser) && !quiz.isPublished) {
+          return res.status(403).json({ error: 'Quiz is not published' });
+        }
+
+        // Check attempt limits
+        if (quiz.multipleAttempts === false) {
+          const existingAttempts = await dao.getAttemptCount(
+            currentUser._id,
+            quizId
+          );
+          if (existingAttempts > 0) {
+            return res
+              .status(400)
+              .json({ error: 'Multiple attempts not allowed' });
+          }
+        } else if (quiz.attemptsAllowed) {
+          const existingAttempts = await dao.getAttemptCount(
+            currentUser._id,
+            quizId
+          );
+          if (existingAttempts >= quiz.attemptsAllowed) {
+            return res.status(400).json({ error: 'Attempt limit reached' });
+          }
+        }
+
+        // Calculate total points
+        const totalPoints = quiz.questions.reduce(
+          (sum, q) => sum + q.points,
+          0
+        );
+
+        const attemptData = {
+          studentId: currentUser._id,
+          quizId: quizId,
+          totalPoints: totalPoints,
+          answers: answers || new Map(),
+          timeSpent: timeSpent || 0,
+          isCompleted: false, // do not mark as completed when saving progress
+          submittedAt: null, // do not set submitted time when saving progress
+        };
+
+        attempt = await dao.createAttempt(attemptData);
+      } else {
+        // Update existing attempt
+        const updates = {
+          answers: answers,
+          timeSpent: timeSpent || attempt.timeSpent,
+        };
+        attempt = await dao.updateAttempt(attempt._id, updates);
+      }
+
+      res.json(attempt);
+    } catch (error) {
+      console.error('Save quiz progress error:', error);
       res.status(500).json({ error: 'Internal server error' });
     }
   };
@@ -274,4 +359,67 @@ export default function QuizAttemptRoutes(app) {
   app.post('/api/quiz-attempts/quiz/:quizId/start', startAttempt);
   app.put('/api/quiz-attempts/:attemptId/save', saveAttemptProgress);
   app.put('/api/quiz-attempts/:attemptId/submit', submitAttempt);
+
+  // Submit quiz (finalize the attempt)
+  const submitQuizAttempt = async (req, res) => {
+    try {
+      const { quizId } = req.params;
+      const { answers } = req.body;
+      const currentUser = req.session?.currentUser;
+
+      if (!currentUser) {
+        return res.status(401).json({ error: 'Authentication required' });
+      }
+
+      // Find current attempt
+      const attempt = await dao.findLatestAttempt(currentUser._id, quizId);
+
+      if (!attempt) {
+        return res.status(404).json({
+          error: 'No active attempt found. Please start the quiz first.',
+        });
+      }
+
+      if (attempt.isCompleted) {
+        return res.status(400).json({ error: 'Attempt already submitted' });
+      }
+
+      // Students can only submit their own attempts
+      if (isStudent(currentUser) && attempt.studentId !== currentUser._id) {
+        return res.status(403).json({ error: 'Access denied' });
+      }
+
+      // Get quiz for scoring
+      const quizModel = (await import('../Quizzes/model.js')).default;
+      const quiz = await quizModel.findById(quizId);
+
+      if (!quiz) {
+        return res.status(404).json({ error: 'Quiz not found' });
+      }
+
+      // Calculate score
+      let score = 0;
+      quiz.questions.forEach((question) => {
+        const userAnswer = answers[question._id];
+        if (userAnswer && userAnswer === question.correctAnswer) {
+          score += question.points;
+        }
+      });
+
+      // Submit the attempt
+      const submittedAttempt = await dao.submitAttempt(
+        attempt._id,
+        answers,
+        score
+      );
+      res.json(submittedAttempt);
+    } catch (error) {
+      console.error('Submit quiz attempt error:', error);
+      res.status(500).json({ error: 'Internal server error' });
+    }
+  };
+
+  // Simplified API for frontend
+  app.put('/api/quiz-attempts/quiz/:quizId', saveQuizProgress);
+  app.post('/api/quiz-attempts/quiz/:quizId/submit', submitQuizAttempt);
 }
