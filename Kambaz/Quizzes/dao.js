@@ -15,7 +15,11 @@ export async function findQuizById(qid) {
 }
 
 export async function createQuizForCourse(courseId, quiz) {
-  const newQuiz = { ...quiz, courseId: courseId };
+  const newQuiz = {
+    ...quiz,
+    courseId: courseId,
+    _id: quiz._id || `quiz${String(Date.now()).slice(-6)}`, // Generate readable string ID
+  };
   return model.create(newQuiz);
 }
 
