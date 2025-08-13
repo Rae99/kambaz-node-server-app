@@ -320,11 +320,21 @@ export default function QuizAttemptRoutes(app) {
           0
         );
 
+        // Convert answers to Map format for database storage
+        let answersForDB = answers || {};
+        if (Array.isArray(answers)) {
+          answersForDB = {};
+          answers.forEach((answerData) => {
+            const { questionIndex, userAnswer } = answerData;
+            answersForDB[`question_${questionIndex}`] = userAnswer;
+          });
+        }
+
         const attemptData = {
           studentId: currentUser._id,
           quizId: quizId,
           totalPoints: totalPoints,
-          answers: answers || new Map(),
+          answers: answersForDB,
           timeSpent: timeSpent || 0,
           isCompleted: false, // do not mark as completed when saving progress
           submittedAt: null, // do not set submitted time when saving progress
@@ -333,8 +343,18 @@ export default function QuizAttemptRoutes(app) {
         attempt = await dao.createAttempt(attemptData);
       } else {
         // Update existing attempt
+        // Convert answers to Map format for database storage
+        let answersForDB = answers;
+        if (Array.isArray(answers)) {
+          answersForDB = {};
+          answers.forEach((answerData) => {
+            const { questionIndex, userAnswer } = answerData;
+            answersForDB[`question_${questionIndex}`] = userAnswer;
+          });
+        }
+
         const updates = {
-          answers: answers,
+          answers: answersForDB,
           timeSpent: timeSpent || attempt.timeSpent,
         };
         attempt = await dao.updateAttempt(attempt._id, updates);
@@ -385,7 +405,10 @@ export default function QuizAttemptRoutes(app) {
       }
 
       // Students and users can only submit their own attempts
-      if (isStudentOrUser(currentUser) && attempt.studentId !== currentUser._id) {
+      if (
+        isStudentOrUser(currentUser) &&
+        attempt.studentId.toString() !== currentUser._id
+      ) {
         return res.status(403).json({ error: 'Access denied' });
       }
 
@@ -399,17 +422,45 @@ export default function QuizAttemptRoutes(app) {
 
       // Calculate score
       let score = 0;
-      quiz.questions.forEach((question) => {
-        const userAnswer = answers[question._id];
-        if (userAnswer && userAnswer === question.correctAnswer) {
-          score += question.points;
-        }
-      });
+
+      // Check if answers is an array (new format) or object (old format)
+      if (Array.isArray(answers)) {
+        // New format: answers is an array with questionIndex
+        answers.forEach((answerData) => {
+          const { questionIndex, userAnswer } = answerData;
+          const question = quiz.questions[questionIndex];
+
+          if (question && userAnswer === question.correctAnswer) {
+            score += question.points;
+          }
+        });
+      } else {
+        // Old format: answers is an object with question IDs
+        quiz.questions.forEach((question, index) => {
+          const userAnswer =
+            answers[question._id] || answers[`question_${index}`];
+
+          if (userAnswer && userAnswer === question.correctAnswer) {
+            score += question.points;
+          }
+        });
+      }
+
+      // Convert answers to Map format for database storage
+      let answersForDB = answers;
+      if (Array.isArray(answers)) {
+        // Convert array format to Map format
+        answersForDB = {};
+        answers.forEach((answerData) => {
+          const { questionIndex, userAnswer } = answerData;
+          answersForDB[`question_${questionIndex}`] = userAnswer;
+        });
+      }
 
       // Submit the attempt
       const submittedAttempt = await dao.submitAttempt(
         attempt._id,
-        answers,
+        answersForDB,
         score
       );
       res.json(submittedAttempt);
