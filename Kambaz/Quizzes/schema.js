@@ -46,7 +46,7 @@ const quizSchema = new mongoose.Schema(
       ],
       default: 'never',
     },
-    customShowDate: Date,
+    customShowDate: String,
     accessCode: String,
     oneQuestionAtATime: { type: Boolean, default: false },
     webcamRequired: { type: Boolean, default: false },
