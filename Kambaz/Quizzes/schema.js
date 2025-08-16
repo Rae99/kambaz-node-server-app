@@ -1,6 +1,20 @@
 import mongoose from 'mongoose';
 
+const blankOptionSchema = new mongoose.Schema({
+  id: {
+    type: String,
+    required: true,
+  },
+  options: [String], // dropdown options for this blank
+  correctAnswer: {
+    type: String,
+    required: true,
+  },
+});
+
 const questionSchema = new mongoose.Schema({
+  _id: String,
+  title: String, // Question title
   type: {
     type: String,
     enum: ['multiple-choice', 'true-false', 'fill-in-the-blank'],
@@ -14,12 +28,14 @@ const questionSchema = new mongoose.Schema({
     type: Number,
     required: true,
   },
-  options: [String],
+  options: [String], // for multiple choice
   correctAnswer: {
     type: mongoose.Schema.Types.Mixed, // Can be String or Array
     required: true,
   },
   explanation: String,
+  // New fields for fill-in-the-blank
+  blanks: [blankOptionSchema], // For fill-in-the-blank questions
 });
 
 const quizSchema = new mongoose.Schema(
