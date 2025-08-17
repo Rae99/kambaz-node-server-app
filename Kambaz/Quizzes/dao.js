@@ -1,6 +1,7 @@
 // findAllQuizzes, findQuizzesByCourse, createQuiz, updateQuiz, deleteQuiz 等
 
 import model from './model.js';
+import { v4 as uuidv4 } from 'uuid';
 
 export async function findAllQuizzes() {
   return model.find();
@@ -17,8 +18,7 @@ export async function findQuizById(qid) {
 export async function createQuizForCourse(courseId, quiz) {
   const newQuiz = {
     ...quiz,
-    courseId: courseId,
-    _id: quiz._id || `quiz${String(Date.now()).slice(-6)}`, // Generate readable string ID
+    _id: quiz._id || uuidv4()
   };
   return model.create(newQuiz);
 }
