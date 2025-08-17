@@ -63,6 +63,34 @@ if (process.env.SERVER_ENV !== 'development') {
 app.use(session(sessionOptions)); // This is a middleware that creates a session for the user
 app.use(express.json()); // This is a middleware that parses the request body and makes it available in req.body
 
+// after app.use(express.json()), before your routers
+if (process.env.NODE_ENV !== 'production') {
+  const hits = new Map();
+
+  app.use((req, res, next) => {
+    const start = process.hrtime.bigint();
+    res.on('finish', () => {
+      if (!req.originalUrl.startsWith('/api/')) return;
+
+      const durMs = Number(process.hrtime.bigint() - start) / 1e6;
+      // Express route path if available; otherwise fall back to raw URL (no query)
+      const matched = `${req.method} ${req.baseUrl || ''}${(req.route && req.route.path) || req.originalUrl.split('?')[0]}`;
+      hits.set(matched, (hits.get(matched) || 0) + 1);
+
+      const uid = req.user?._id || 'anon';
+      console.log(`[HIT] ${res.statusCode} ${matched} uid=${uid} ${durMs.toFixed(1)}ms`);
+    });
+    next();
+  });
+
+  // Print a summary when you stop the server (Ctrl+C)
+  process.on('SIGINT', () => {
+    console.log('\n=== API hit summary ===');
+    for (const [route, n] of hits.entries()) console.log(`${n} × ${route}`);
+    process.exit(0);
+  });
+}
+
 UserRoutes(app);
 CourseRoutes(app);
 ModuleRoutes(app);
@@ -107,3 +135,4 @@ app.listen(process.env.PORT || 4000);
 // 	2.	Checks whether the Content-Type is application/json
 // 	3.	Uses JSON.parse() to convert the raw bytes into a JavaScript object
 // 	4.	Attaches the resulting object to req.body
+

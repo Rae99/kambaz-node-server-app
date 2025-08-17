@@ -11,23 +11,7 @@ function isStudentOrUser(user) {
 }
 
 export default function QuizAttemptRoutes(app) {
-  // Get all attempts for a specific quiz (Faculty only)
-  const findAttemptsByQuiz = async (req, res) => {
-    try {
-      const { quizId } = req.params;
-      const currentUser = req.session?.currentUser;
 
-      if (!currentUser || !isFaculty(currentUser)) {
-        return res.status(403).json({ error: 'Access denied. Faculty only.' });
-      }
-
-      const attempts = await dao.findAttemptsByQuiz(quizId);
-      res.json(attempts);
-    } catch (error) {
-      console.error('Find attempts by quiz error:', error);
-      res.status(500).json({ error: 'Internal server error' });
-    }
-  };
 
   // Get attempts for a specific student on a specific quiz
   const findAttemptsByStudentAndQuiz = async (req, res) => {
@@ -367,18 +351,7 @@ export default function QuizAttemptRoutes(app) {
     }
   };
 
-  // Register routes
-  app.get('/api/quiz-attempts/quiz/:quizId', findAttemptsByQuiz);
-  app.get(
-    '/api/quiz-attempts/quiz/:quizId/student/:studentId',
-    findAttemptsByStudentAndQuiz
-  );
-  app.get('/api/quiz-attempts/course/:courseId', findAttemptsByCourse);
-  app.get('/api/quiz-attempts/:attemptId', findAttemptById);
-
-  app.post('/api/quiz-attempts/quiz/:quizId/start', startAttempt);
-  app.put('/api/quiz-attempts/:attemptId/save', saveAttemptProgress);
-  app.put('/api/quiz-attempts/:attemptId/submit', submitAttempt);
+ 
 
   // Submit quiz (finalize the attempt)
   const submitQuizAttempt = async (req, res) => {
@@ -472,5 +445,21 @@ export default function QuizAttemptRoutes(app) {
 
   // Simplified API for frontend
   app.put('/api/quiz-attempts/quiz/:quizId', saveQuizProgress);
+
   app.post('/api/quiz-attempts/quiz/:quizId/submit', submitQuizAttempt);
+
+  app.get(
+    '/api/quiz-attempts/quiz/:quizId/student/:studentId',
+    findAttemptsByStudentAndQuiz
+  );
+
+  // Register routes
+
+
+  // app.get('/api/quiz-attempts/:attemptId', findAttemptById);
+  // app.post('/api/quiz-attempts/quiz/:quizId/start', startAttempt);
+
+
+  // app.put('/api/quiz-attempts/:attemptId/save', saveAttemptProgress);
+
 }
