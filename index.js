@@ -64,32 +64,32 @@ app.use(session(sessionOptions)); // This is a middleware that creates a session
 app.use(express.json()); // This is a middleware that parses the request body and makes it available in req.body
 
 // after app.use(express.json()), before your routers
-if (process.env.NODE_ENV !== 'production') {
-  const hits = new Map();
+// if (process.env.NODE_ENV !== 'production') {
+//   const hits = new Map();
 
-  app.use((req, res, next) => {
-    const start = process.hrtime.bigint();
-    res.on('finish', () => {
-      if (!req.originalUrl.startsWith('/api/')) return;
+//   app.use((req, res, next) => {
+//     const start = process.hrtime.bigint();
+//     res.on('finish', () => {
+//       if (!req.originalUrl.startsWith('/api/')) return;
 
-      const durMs = Number(process.hrtime.bigint() - start) / 1e6;
-      // Express route path if available; otherwise fall back to raw URL (no query)
-      const matched = `${req.method} ${req.baseUrl || ''}${(req.route && req.route.path) || req.originalUrl.split('?')[0]}`;
-      hits.set(matched, (hits.get(matched) || 0) + 1);
+//       const durMs = Number(process.hrtime.bigint() - start) / 1e6;
+//       // Express route path if available; otherwise fall back to raw URL (no query)
+//       const matched = `${req.method} ${req.baseUrl || ''}${(req.route && req.route.path) || req.originalUrl.split('?')[0]}`;
+//       hits.set(matched, (hits.get(matched) || 0) + 1);
 
-      const uid = req.user?._id || 'anon';
-      console.log(`[HIT] ${res.statusCode} ${matched} uid=${uid} ${durMs.toFixed(1)}ms`);
-    });
-    next();
-  });
+//       const uid = req.user?._id || 'anon';
+//       console.log(`[HIT] ${res.statusCode} ${matched} uid=${uid} ${durMs.toFixed(1)}ms`);
+//     });
+//     next();
+//   });
 
-  // Print a summary when you stop the server (Ctrl+C)
-  process.on('SIGINT', () => {
-    console.log('\n=== API hit summary ===');
-    for (const [route, n] of hits.entries()) console.log(`${n} × ${route}`);
-    process.exit(0);
-  });
-}
+//   // Print a summary when you stop the server (Ctrl+C)
+//   process.on('SIGINT', () => {
+//     console.log('\n=== API hit summary ===');
+//     for (const [route, n] of hits.entries()) console.log(`${n} × ${route}`);
+//     process.exit(0);
+//   });
+// }
 
 UserRoutes(app);
 CourseRoutes(app);
